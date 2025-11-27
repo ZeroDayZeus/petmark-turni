@@ -1,0 +1,20 @@
+{
+  "name": "Turni PetMark",
+  "short_name": "PetMark",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e30613",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/FDQdJ8I.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.imgur.com/FDQdJ8I.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

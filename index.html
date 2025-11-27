@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>PetMark - Gestione Turni di Lavoro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e30613">
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #f4f5fb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+      color: #1e293b;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 1200px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-strip {
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .logo-strip img {
+      max-width: 100%;
+      height: 60px;
+      object-fit: contain;
+      display: block;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 28px;
+      border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(90deg, #ffffff 0%, #ffe5e7 40%, #e30613 100%);
+      color: #1e293b;
+      position: relative;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: rgba(37,99,235,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .brand-text h1 {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .brand-text span {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .month-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .month-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(148,163,184,0.4);
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .month-label {
+      font-size: 18px;
+      font-weight: 600;
+      white-space: nowrap;
+      color: #1e293b;
+    }
+
+    .right-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .monthly-hours {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.25);
+      font-size: 13px;
+      text-align: right;
+      white-space: nowrap;
+      color: #ffffff;
+    }
+
+    .monthly-hours span {
+      display: block;
+      color: #ffffff;
+    }
+
+    .monthly-hours .label {
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    .monthly-hours .value {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .monthly-hours .extra {
+      font-size: 12px;
+      opacity: 0.95;
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.28);
+      padding: 5px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    .user-card:hover {
+      background: rgba(0,0,0,0.40);
+      transform: translateY(-1px);
+    }
+
+    .user-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      object-fit: cover;
+      border: 2.5px solid rgba(255,255,255,0.9);
+      box-shadow: 0 0 0 1.5px rgba(15,23,42,0.4);
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .user-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.9;
+      color: #e5e7eb;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .user-hint {
+      font-size: 10px;
+      opacity: 0.8;
+      margin-top: 2px;
+      color: #e5e7eb;
+    }
+
+    .contract-bar {
+      background: #ffffff;
+      padding: 10px 28px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .contract-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .contract-label {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    #contractHoursSelect {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+      background: #f9fafb;
+      color: #111827;
+      outline: none;
+    }
+
+    #contractHoursSelect:focus {
+      border-color: #e30613;
+      box-shadow: 0 0 0 1px rgba(227,6,19,0.35);
+    }
+
+    .contract-note {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .toolbar {
+      padding: 12px 24px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      gap: 10px;
+      background: #f8fafc;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      background: #e2e8f0;
+      color: #0f172a;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #4f46e5, #ec4899);
+      color: #fff;
+    }
+
+    .btn.danger {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    main {
+      padding: 18px 24px 24px;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .calendar-wrapper {
+      overflow-x: auto;
+      overflow-y: hidden;
+      width: 100%;
+    }
+
+    table.calendar {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #f9fafb;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .calendar thead {
+      background: #ede9fe;
+    }
+
+    .calendar th,
+    .calendar td {
+      border: 1px solid #e2e8f0;
+    }
+
+    .calendar th {
+      padding: 8px 6px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #6b7280;
+      background: #f8fafc;
+    }
+
+    .calendar th.week-total-header {
+      background: #f1f5f9;
+      font-size: 11px;
+    }
+
+    .calendar td.day-cell {
+      height: 96px;
+      vertical-align: top;
+      background: #ffffff;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.05s, border-color 0.15s;
+      border-radius: 6px;
+    }
+
+    .calendar td.day-cell:hover {
+      background: #eef2ff;
+      box-shadow: inset 0 0 0 1px #6366f1;
+      transform: translateY(-1px);
+    }
+
+    .calendar td.empty {
+      background: #f8fafc;
+    }
+
+    .calendar td.week-total-cell {
+      width: 80px;
+      background: #f9fafb;
+      font-size: 12px;
+      text-align: center;
+      color: #4b5563;
+      font-weight: 500;
+    }
+
+    .calendar td.week-total-cell .week-label {
+      display: block;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .calendar td.week-total-cell .week-hours {
+      display: block;
+      margin-top: 2px;
+    }
+
+    .day-inner {
+      padding: 5px 6px 4px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .day-number {
+      font-weight: 600;
+      color: #111827;
+      font-size: 13px;
+      padding: 0;
+      border-radius: 999px;
+    }
+
+    .today-indicator {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(129,140,248,0.15);
+      color: #4f46e5;
+    }
+
+    .day-cell.today {
+      background: #e0e7ff;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 1px rgba(79,70,229,0.5);
+    }
+
+    .day-cell.today .day-number {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      padding: 2px 7px;
+      font-size: 13px;
+    }
+
+    .day-cell.today .today-indicator {
+      background: transparent;
+      color: #4f46e5;
+      font-weight: 600;
+    }
+
+    .shift-summary {
+      margin-top: auto;
+      font-size: 11px;
+      line-height: 1.25;
+      color: #1f2937;
+      background: #eef2ff;
+      border-radius: 9px;
+      padding: 4px 6px;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 1px;
+      max-width: 100%;
+      word-break: break-word;
+      border: 1px solid rgba(99,102,241,0.25);
+    }
+
+    .shift-summary .total {
+      font-weight: 700;
+      font-size: 11px;
+      color: #111827;
+    }
+
+    .shift-summary .times {
+      font-size: 10px;
+      color: #374151;
+      opacity: 0.9;
+    }
+
+    .shift-summary .colleague {
+      font-size: 9.5px;
+      color: #6b7280;
+    }
+
+    .day-cell.has-shift {
+      background: #f5f3ff;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 12px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 420px;
+      background: #f9fafb;
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.5);
+      padding: 18px 18px 16px;
+      position: relative;
+      animation: pop 0.15s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes pop {
+      from { transform: translateY(12px) scale(0.98); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .modal-close {
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+      color: #6b7280;
+    }
+
+    .modal-section-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #9ca3af;
+      margin-top: 6px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-section-label .icon {
+      font-size: 14px;
+    }
+
+    .modal input[type="text"],
+    .modal input[type="time"] {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+      outline: none;
+      background: #ffffff;
+    }
+
+    .modal input[type="text"]:focus,
+    .modal input[type="time"]:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 1px rgba(79,70,229,0.3);
+    }
+
+    .shifts-list {
+      margin-top: 4px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .shift-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .shift-row input[type="time"] {
+      flex: 1;
+    }
+
+    .remove-shift {
+      border: none;
+      background: #fee2e2;
+      color: #b91c1c;
+      border-radius: 999px;
+      font-size: 16px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-add-shift {
+      margin-top: 4px;
+      width: 100%;
+      border-radius: 12px;
+      border: 1px dashed #c4b5fd;
+      background: #f5f3ff;
+      padding: 7px 0;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #4f46e5;
+    }
+
+    .modal-footer {
+      margin-top: 12px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-outline {
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      font-size: 14px;
+      padding: 7px 14px;
+      cursor: pointer;
+    }
+
+    .btn-gradient {
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #4f46e5, #ec4899);
+      color: #fff;
+      font-size: 14px;
+      padding: 7px 16px;
+      cursor: pointer;
+    }
+
+    .modal-note {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .app-container {
+        border-radius: 12px;
+      }
+
+      .logo-strip img {
+        height: 50px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 14px 14px 16px;
+      }
+
+      .brand-text h1 {
+        font-size: 18px;
+      }
+
+      .month-controls {
+        position: static;
+        transform: none;
+        order: 3;
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .month-label {
+        font-size: 16px;
+      }
+
+      .right-header {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .monthly-hours {
+        margin-left: 0;
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+
+      .monthly-hours .value {
+        font-size: 14px;
+      }
+
+      .user-card {
+        padding: 3px 8px;
+        gap: 6px;
+      }
+
+      .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-width: 2px;
+        box-shadow: 0 0 0 1px rgba(15,23,42,0.35);
+      }
+
+      .user-name {
+        font-size: 12px;
+      }
+
+      .toolbar {
+        padding: 10px 12px;
+      }
+
+      .btn {
+        flex: 1 1 45%;
+        justify-content: center;
+      }
+
+      main {
+        padding: 12px;
+      }
+
+      .calendar th {
+        font-size: 11px;
+        padding: 6px 4px;
+      }
+
+      .calendar td.day-cell {
+        height: 86px;
+      }
+
+      .day-number {
+        font-size: 12px;
+      }
+
+      .shift-summary {
+        font-size: 10px;
+      }
+
+      .modal {
+        max-width: none;
+        width: 100%;
+        border-radius: 14px;
+      }
+
+      .contract-bar {
+        padding: 10px 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      table.calendar {
+        min-width: 560px;
+      }
+
+      .toolbar {
+        gap: 6px;
+      }
+
+      .btn {
+        flex: 1 1 100%;
+      }
+
+      .modal {
+        border-radius: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+
+  <div class="logo-strip">
+    <img src="https://i.imgur.com/FDQdJ8I.png" alt="PetMark - Il migliore amico del tuo pet">
+  </div>
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">📅</div>
+      <div class="brand-text">
+        <h1>Busto Arsizio 321</h1>
+        <span>Gestione Turni di Lavoro</span>
+      </div>
+    </div>
+
+    <div class="month-controls">
+      <button class="month-btn" id="prevMonthBtn">&#x2039;</button>
+      <div class="month-label" id="monthLabel">Novembre 2025</div>
+      <button class="month-btn" id="nextMonthBtn">&#x203A;</button>
+    </div>
+
+    <div class="right-header">
+      <div class="monthly-hours">
+        <span class="label">Ore Mensili</span>
+        <span class="value" id="monthlyHours">0.0 h</span>
+        <span class="extra" id="monthlyExtra">Extra: 0.0 h</span>
+      </div>
+      <div class="user-card" id="userCard">
+        <img src="https://i.imgur.com/6VBx3io.png" alt="Utente che inserisce i turni" class="user-avatar" id="userAvatar">
+        <div class="user-info">
+          <span class="user-label">Valeria</span>
+          <span class="user-name">I tuoi turni</span>
+          <span class="user-hint">Clicca per cambiare foto</span>
+        </div>
+      </div>
+      <input type="file" id="avatarFileInput" accept="image/*" style="display:none">
+    </div>
+  </header>
+
+  <div class="contract-bar">
+    <div class="contract-left">
+      <span class="contract-label">Ore settimanali da contratto:</span>
+      <select id="contractHoursSelect">
+        <option value="">Seleziona ore settimanali</option>
+        <option value="20">20 h/sett</option>
+        <option value="30">30 h/sett</option>
+        <option value="40">40 h/sett</option>
+      </select>
+    </div>
+    <div class="contract-note">
+      Gli extra mensili sono calcolati rispetto alle ore settimanali selezionate e alle settimane del mese.
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" id="exportBtn">💾 Esporta Backup</button>
+    <button class="btn" id="importBtn">📥 Importa Backup</button>
+    <button class="btn danger" id="clearBtn">🗑️ Cancella Tutto</button>
+    <input type="file" id="importFile" style="display:none" accept="application/json">
+  </div>
+
+  <main>
+    <div class="calendar-wrapper">
+      <table class="calendar">
+        <thead>
+        <tr>
+          <th>Lun</th>
+          <th>Mar</th>
+          <th>Mer</th>
+          <th>Gio</th>
+          <th>Ven</th>
+          <th>Sab</th>
+          <th>Dom</th>
+          <th class="week-total-header">Settimana</th>
+        </tr>
+        </thead>
+        <tbody id="calendarBody">
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">2 Novembre</div>
+      <button class="modal-close" id="modalCloseBtn">&times;</button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-label"><span class="icon">👤</span> Collega</div>
+      <input type="text" id="colleagueInput" placeholder="Nome collega">
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-label"><span class="icon">⏱️</span> Turni</div>
+      <div class="shifts-list" id="shiftsList"></div>
+      <button class="btn-add-shift" id="addShiftBtn">＋ Aggiungi turno</button>
+      <div class="modal-note">
+        Le ore vengono calcolate in base a inizio e fine turno.
+        Se il turno supera la mezzanotte, inserisci comunque gli orari corretti (es. 22:00–06:00).
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-outline" id="cancelModalBtn">Annulla</button>
+      <button class="btn-gradient" id="saveModalBtn">Salva</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const monthNames = [
+    "Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
+    "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"
+  ];
+
+  const AVATAR_KEY = "petmark_user_avatar_v1";
+  const CONTRACT_KEY = "petmark_contract_hours_v1";
+
+  let currentDate = new Date();
+  let currentYear = currentDate.getFullYear();
+  let currentMonth = currentDate.getMonth();
+
+  let editingDate = null;
+  let dayWeekMap = {};
+
+  let shifts = {};
+  let currentMonthlyTotal = 0;
+  let currentWeeksInMonth = 4;
+
+  function loadShifts() {
+    try {
+      const raw = localStorage.getItem("petmark_shifts_v1");
+      if (raw) shifts = JSON.parse(raw);
+    } catch (e) {
+      console.error("Errore caricando i dati:", e);
+      shifts = {};
+    }
+  }
+
+  function saveShifts() {
+    try {
+      localStorage.setItem("petmark_shifts_v1", JSON.stringify(shifts));
+    } catch (e) {
+      console.error("Errore salvando i dati:", e);
+    }
+  }
+
+  function pad(num) {
+    return num < 10 ? "0" + num : String(num);
+  }
+
+  function dateKey(year, month, day) {
+    return `${year}-${pad(month + 1)}-${pad(day)}`;
+  }
+
+  function parseDateKey(key) {
+    const [y,m,d] = key.split("-").map(Number);
+    return {year: y, month: m - 1, day: d};
+  }
+
+  function isToday(year, month, day) {
+    const t = new Date();
+    return t.getFullYear() === year && t.getMonth() === month && t.getDate() === day;
+  }
+
+  function calcHoursForShifts(shiftArray) {
+    let total = 0;
+    if (!shiftArray) return 0;
+    for (const s of shiftArray) {
+      if (!s.start || !s.end) continue;
+      const [sh, sm] = s.start.split(":").map(Number);
+      const [eh, em] = s.end.split(":").map(Number);
+      if (Number.isNaN(sh) || Number.isNaN(eh)) continue;
+      let start = sh * 60 + sm;
+      let end = eh * 60 + em;
+      if (end < start) end += 24 * 60;
+      if (end === start) continue;
+      total += (end - start) / 60;
+    }
+    return total;
+  }
+
+  function buildCalendar(year, month) {
+    const tbody = document.getElementById("calendarBody");
+    tbody.innerHTML = "";
+    dayWeekMap = {};
+
+    const label = document.getElementById("monthLabel");
+    label.textContent = monthNames[month] + " " + year;
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+
+    let startWeekday = (firstDay.getDay() + 6) % 7;
+
+    let weekIndex = 0;
+    let currentRow = document.createElement("tr");
+    let cellsFilled = 0;
+
+    for (let i = 0; i < startWeekday; i++) {
+      const td = document.createElement("td");
+      td.className = "empty";
+      currentRow.appendChild(td);
+      cellsFilled++;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      if (cellsFilled === 7) {
+        const weekTd = createWeekTotalCell(weekIndex);
+        currentRow.appendChild(weekTd);
+        tbody.appendChild(currentRow);
+        currentRow = document.createElement("tr");
+        cellsFilled = 0;
+        weekIndex++;
+      }
+
+      const td = document.createElement("td");
+      td.className = "day-cell";
+      const key = dateKey(year, month, day);
+      td.dataset.date = key;
+
+      const inner = document.createElement("div");
+      inner.className = "day-inner";
+
+      const header = document.createElement("div");
+      header.className = "day-header";
+
+      const num = document.createElement("div");
+      num.className = "day-number";
+      num.textContent = day;
+      header.appendChild(num);
+
+      if (isToday(year, month, day)) {
+        td.classList.add("today");
+        const todayBadge = document.createElement("div");
+        todayBadge.className = "today-indicator";
+        todayBadge.textContent = "Oggi";
+        header.appendChild(todayBadge);
+      }
+
+      const summary = document.createElement("div");
+      summary.className = "shift-summary";
+      summary.style.display = "none";
+
+      inner.appendChild(header);
+      inner.appendChild(summary);
+      td.appendChild(inner);
+
+      td.addEventListener("click", () => openModal(key));
+
+      currentRow.appendChild(td);
+      dayWeekMap[key] = weekIndex;
+      cellsFilled++;
+    }
+
+    while (cellsFilled < 7) {
+      const td = document.createElement("td");
+      td.className = "empty";
+      currentRow.appendChild(td);
+      cellsFilled++;
+    }
+
+    const lastWeekTd = createWeekTotalCell(weekIndex);
+    currentRow.appendChild(lastWeekTd);
+    tbody.appendChild(currentRow);
+
+    currentWeeksInMonth = weekIndex + 1;
+    recomputeTotals(year, month);
+  }
+
+  function createWeekTotalCell(weekIndex) {
+    const td = document.createElement("td");
+    td.className = "week-total-cell";
+    td.dataset.weekIndex = weekIndex;
+
+    const label = document.createElement("span");
+    label.className = "week-label";
+    label.textContent = "Sett. " + (weekIndex + 1);
+
+    const hoursSpan = document.createElement("span");
+    hoursSpan.className = "week-hours";
+    hoursSpan.textContent = "0.0 h";
+
+    td.appendChild(label);
+    td.appendChild(hoursSpan);
+    return td;
+  }
+
+  function recomputeTotals(year, month) {
+    document.querySelectorAll(".day-cell").forEach(td => {
+      td.classList.remove("has-shift");
+      const summary = td.querySelector(".shift-summary");
+      if (summary) {
+        summary.innerHTML = "";
+        summary.style.display = "none";
+      }
+    });
+
+    const weekCells = Array.from(document.querySelectorAll(".week-total-cell"));
+    const weekTotals = weekCells.map(() => 0);
+
+    for (const key of Object.keys(shifts)) {
+      const {year: y, month: m} = parseDateKey(key);
+      if (y !== year || m !== month) continue;
+
+      const dayData = shifts[key];
+      const dayHours = calcHoursForShifts(dayData.shifts);
+      if (dayHours <= 0) continue;
+
+      const weekIndex = dayWeekMap[key];
+      if (weekIndex == null) continue;
+      weekTotals[weekIndex] += dayHours;
+
+      const td = document.querySelector(`.day-cell[data-date="${key}"]`);
+      if (td) {
+        td.classList.add("has-shift");
+        const summary = td.querySelector(".shift-summary");
+        summary.style.display = "inline-flex";
+        summary.innerHTML = "";
+
+        const totalSpan = document.createElement("span");
+        totalSpan.className = "total";
+        totalSpan.textContent = dayHours.toFixed(1) + " h";
+
+        const timesSpan = document.createElement("span");
+        timesSpan.className = "times";
+        timesSpan.textContent = dayData.shifts
+          .map(s => `${s.start}-${s.end}`)
+          .join(" · ");
+
+        summary.appendChild(totalSpan);
+        summary.appendChild(timesSpan);
+
+        if (dayData.colleague) {
+          const collSpan = document.createElement("span");
+          collSpan.className = "colleague";
+          collSpan.textContent = dayData.colleague;
+          summary.appendChild(collSpan);
+        }
+      }
+    }
+
+    let monthlyTotal = 0;
+    weekTotals.forEach((val, idx) => {
+      monthlyTotal += val;
+      const cell = weekCells[idx];
+      if (!cell) return;
+      const hoursSpan = cell.querySelector(".week-hours");
+      hoursSpan.textContent = val.toFixed(1) + " h";
+    });
+
+    currentMonthlyTotal = monthlyTotal;
+    document.getElementById("monthlyHours").textContent =
+      monthlyTotal.toFixed(1) + " h";
+
+    updateExtraHours();
+  }
+
+  const modalBackdrop = document.getElementById("modalBackdrop");
+  const modalTitle = document.getElementById("modalTitle");
+  const colleagueInput = document.getElementById("colleagueInput");
+  const shiftsList = document.getElementById("shiftsList");
+
+  function openModal(dateKeyStr) {
+    editingDate = dateKeyStr;
+    const {month, day} = parseDateKey(dateKeyStr);
+    modalTitle.textContent = day + " " + monthNames[month];
+
+    const existing = shifts[dateKeyStr];
+    colleagueInput.value = existing?.colleague || "";
+    shiftsList.innerHTML = "";
+
+    const list = existing?.shifts || [];
+    if (list.length) {
+      list.forEach(s => addShiftRow(s.start, s.end));
+    } else {
+      addShiftRow("", "");
+    }
+
+    modalBackdrop.classList.add("show");
+  }
+
+  function closeModal() {
+    modalBackdrop.classList.remove("show");
+    editingDate = null;
+  }
+
+  function fixToQuarterHour(input) {
+    if (!input.value) return;
+    const [hStr, mStr] = input.value.split(":");
+    let h = parseInt(hStr, 10);
+    let m = parseInt(mStr || "0", 10);
+    if (Number.isNaN(h) || Number.isNaN(m)) return;
+
+    let quarter = Math.round(m / 15) * 15;
+    if (quarter === 60) {
+      quarter = 45;
+    }
+    const hh = h.toString().padStart(2, "0");
+    const mm = quarter.toString().padStart(2, "0");
+    input.value = `${hh}:${mm}`;
+  }
+
+  function attachQuarterHandlers(input) {
+    input.addEventListener("change", () => fixToQuarterHour(input));
+    input.addEventListener("blur", () => fixToQuarterHour(input));
+  }
+
+  function addShiftRow(start = "", end = "") {
+    const row = document.createElement("div");
+    row.className = "shift-row";
+
+    const inputStart = document.createElement("input");
+    inputStart.type = "time";
+    inputStart.className = "shift-start";
+    inputStart.value = start;
+    inputStart.step = 900;
+    attachQuarterHandlers(inputStart);
+
+    const inputEnd = document.createElement("input");
+    inputEnd.type = "time";
+    inputEnd.className = "shift-end";
+    inputEnd.value = end;
+    inputEnd.step = 900;
+    attachQuarterHandlers(inputEnd);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "remove-shift";
+    removeBtn.textContent = "×";
+    removeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      row.remove();
+    });
+
+    row.appendChild(inputStart);
+    row.appendChild(inputEnd);
+    row.appendChild(removeBtn);
+    shiftsList.appendChild(row);
+  }
+
+  function saveModal() {
+    if (!editingDate) return;
+    const colleague = colleagueInput.value.trim();
+    const rows = shiftsList.querySelectorAll(".shift-row");
+    const newShifts = [];
+
+    rows.forEach(row => {
+      const sInput = row.querySelector(".shift-start");
+      const eInput = row.querySelector(".shift-end");
+      fixToQuarterHour(sInput);
+      fixToQuarterHour(eInput);
+      const s = sInput.value;
+      const e = eInput.value;
+      if (s && e) newShifts.push({start: s, end: e});
+    });
+
+    if (newShifts.length === 0) {
+      delete shifts[editingDate];
+    } else {
+      shifts[editingDate] = {colleague, shifts: newShifts};
+    }
+
+    saveShifts();
+    recomputeTotals(currentYear, currentMonth);
+    closeModal();
+  }
+
+  function exportBackup() {
+    const dataStr = JSON.stringify(shifts, null, 2);
+    const blob = new Blob([dataStr], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const stamp = new Date().toISOString().slice(0,10);
+    a.download = `petmark_turni_${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function importBackup(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (typeof data === "object" && data !== null) {
+          shifts = data;
+          saveShifts();
+          buildCalendar(currentYear, currentMonth);
+        } else {
+          alert("File non valido.");
+        }
+      } catch (err) {
+        alert("Errore nel leggere il file JSON.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function clearAll() {
+    if (!confirm("Vuoi davvero cancellare tutti i turni salvati?")) return;
+    shifts = {};
+    saveShifts();
+    buildCalendar(currentYear, currentMonth);
+  }
+
+  function loadAvatar() {
+    try {
+      const saved = localStorage.getItem(AVATAR_KEY);
+      const avatarImg = document.getElementById("userAvatar");
+      if (saved && avatarImg) {
+        avatarImg.src = saved;
+      }
+    } catch (e) {
+      console.error("Errore caricando l'avatar:", e);
+    }
+  }
+
+  function setupAvatarSelector() {
+    const userCard = document.getElementById("userCard");
+    const avatarInput = document.getElementById("avatarFileInput");
+    const avatarImg = document.getElementById("userAvatar");
+
+    if (!userCard || !avatarInput || !avatarImg) return;
+
+    userCard.addEventListener("click", () => {
+      avatarInput.click();
+    });
+
+    avatarInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith("image/")) {
+        alert("Per favore seleziona un file immagine.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
+        avatarImg.src = dataUrl;
+        try {
+          localStorage.setItem(AVATAR_KEY, dataUrl);
+        } catch (err) {
+          console.error("Errore salvando l'avatar:", err);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function loadContractHours() {
+    const select = document.getElementById("contractHoursSelect");
+    if (!select) return;
+    try {
+      const saved = localStorage.getItem(CONTRACT_KEY);
+      if (saved) {
+        select.value = saved;
+      }
+    } catch (e) {
+      console.error("Errore caricando tipo contratto:", e);
+    }
+    updateExtraHours();
+  }
+
+  function updateExtraHours() {
+    const select = document.getElementById("contractHoursSelect");
+    const extraSpan = document.getElementById("monthlyExtra");
+    if (!select || !extraSpan) return;
+
+    const weekly = parseFloat(select.value || "0");
+    let extra = 0;
+    if (weekly > 0) {
+      const monthlyContractHours = weekly * currentWeeksInMonth;
+      extra = currentMonthlyTotal - monthlyContractHours;
+      if (extra < 0) extra = 0;
+    }
+    extraSpan.textContent = "Extra: " + extra.toFixed(1) + " h";
+  }
+
+  function setupContractSelect() {
+    const select = document.getElementById("contractHoursSelect");
+    if (!select) return;
+    select.addEventListener("change", () => {
+      try {
+        if (select.value) {
+          localStorage.setItem(CONTRACT_KEY, select.value);
+        } else {
+          localStorage.removeItem(CONTRACT_KEY);
+        }
+      } catch (e) {
+        console.error("Errore salvando tipo contratto:", e);
+      }
+      updateExtraHours();
+    });
+  }
+
+  document.getElementById("prevMonthBtn").addEventListener("click", () => {
+    currentMonth--;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    buildCalendar(currentYear, currentMonth);
+  });
+
+  document.getElementById("nextMonthBtn").addEventListener("click", () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    buildCalendar(currentYear, currentMonth);
+  });
+
+  document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
+  document.getElementById("cancelModalBtn").addEventListener("click", closeModal);
+  document.getElementById("modalBackdrop").addEventListener("click", (e) => {
+    if (e.target === modalBackdrop) closeModal();
+  });
+
+  document.getElementById("addShiftBtn").addEventListener("click", () => addShiftRow());
+  document.getElementById("saveModalBtn").addEventListener("click", saveModal);
+
+  document.getElementById("exportBtn").addEventListener("click", exportBackup);
+  document.getElementById("importBtn").addEventListener("click", () => {
+    document.getElementById("importFile").click();
+  });
+  document.getElementById("importFile").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) importBackup(file);
+    e.target.value = "";
+  });
+  document.getElementById("clearBtn").addEventListener("click", clearAll);
+
+  loadShifts();
+  buildCalendar(currentYear, currentMonth);
+  loadAvatar();
+  setupAvatarSelector();
+  setupContractSelect();
+  loadContractHours();
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+</script>
+</body>
+</html>
